@@ -22,7 +22,7 @@
 #include <string>
 #include <functional>
 #include <system_error>
-#include "utility/unicode.h"
+#include "unicode.h"
 
 namespace adexml
 {
@@ -220,7 +220,7 @@ private:
 	std::vector<Element>					m_element_stack;
 
 	Encoding											m_encoding = ENCODING_UTF8;
-	ade::unicode::U8Parser				m_u8_parser;
+	adexml::unicode::U8Parser			m_u8_parser;
 	std::u32string								m_buffer_u32;
 	std::u8string									m_tag_name;
 	std::u8string									m_tag_namespace;

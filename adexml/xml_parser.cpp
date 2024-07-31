@@ -124,13 +124,13 @@ Parser::do_state_idle(char32_t ch)
 			{
 				auto & element = m_element_stack.back();
 				if(!element.content.empty())
-					ade::unicode::u32_to_u8(ch,element.content);
+					adexml::unicode::u32_to_u8(ch,element.content);
 			}
 			break;
 
 		default :
 			if(!m_element_stack.empty())
-				ade::unicode::u32_to_u8(ch,m_element_stack.back().content);
+				adexml::unicode::u32_to_u8(ch,m_element_stack.back().content);
 			break;
 	}
 	return {};
@@ -160,7 +160,7 @@ Parser::do_state_tag_start(char32_t ch)
 		default :
 			if(is_name_start_char(ch))
 			{
-				ade::unicode::u32_to_u8(ch,m_tag_name);
+				adexml::unicode::u32_to_u8(ch,m_tag_name);
 				set_state(State::STATE_START_TAG_NAME);
 				m_element_stack.push_back({});
 				m_element_stack.back().type = m_element_type;
@@ -186,7 +186,7 @@ Parser::do_state_start_tag_name(char32_t ch)
 //	auto & element = m_element_stack.back();
 
 	if(is_name_char(ch))
-		ade::unicode::u32_to_u8(ch,m_tag_name);
+		adexml::unicode::u32_to_u8(ch,m_tag_name);
 	else 
 		switch(ch)
 		{
@@ -272,7 +272,7 @@ Parser::do_state_start_tag_body(char32_t ch)
 					return adexml::Error::ATTRIBUTE_SYNTAX_ERROR;
 				}
 
-				ade::unicode::u32_to_u8(ch,m_attr_name);
+				adexml::unicode::u32_to_u8(ch,m_attr_name);
 				set_state(State::STATE_ATTRIBUTE_NAME);
 			}
 			break;
@@ -313,7 +313,7 @@ Parser::do_state_end_tag(char32_t ch)
 	if(is_name_start_char(ch))
 	{
 		m_tag_name.clear();
-		ade::unicode::u32_to_u8(ch,m_tag_name);
+		adexml::unicode::u32_to_u8(ch,m_tag_name);
 		set_state(State::STATE_END_TAG_NAME);
 	}
 	else 
@@ -340,7 +340,7 @@ Parser::do_state_end_tag_name(char32_t ch)
 {
 
 	if(is_name_char(ch))
-		ade::unicode::u32_to_u8(ch,m_tag_name);
+		adexml::unicode::u32_to_u8(ch,m_tag_name);
 	else 
 		switch(ch)
 		{
@@ -412,7 +412,7 @@ std::error_code
 Parser::do_state_attribute_name(char32_t ch)
 {
 	if(is_name_char(ch))
-		ade::unicode::u32_to_u8(ch,m_attr_name);
+		adexml::unicode::u32_to_u8(ch,m_attr_name);
 	else
 		switch(ch)
 		{
@@ -487,7 +487,7 @@ Parser::do_state_attribute_value(char32_t ch)
 	}
 	else
 	{
-		ade::unicode::u32_to_u8(ch,m_attr_value);
+		adexml::unicode::u32_to_u8(ch,m_attr_value);
 	}
 	return {};
 }
