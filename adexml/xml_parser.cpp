@@ -21,52 +21,6 @@
 //
 //=============================================================================
 
-namespace
-{
-
-struct AdeXMLErrorCategory : std::error_category
-{
-	const char * 	name() const noexcept override;
-	std::string 	message(int ev) const override;
-};
-
-
-const char *
-AdeXMLErrorCategory::name() const noexcept
-{
-	return "xml_parser";
-}
-
-std::string
-AdeXMLErrorCategory::message(int ev) const
-{
-	switch( static_cast<adexml::Error>(ev) )
-	{
-		case	adexml::Error::NONE :														return "None";
-		case	adexml::Error::FAILED :													return "Operation Failed";
-		case 	adexml::Error::INVALID_STATE :									return "BUG: Invalid State Detected!";
-		case 	adexml::Error::INVALID_ELEMENT_NAME :						return "Invalid Element Name";
-		case 	adexml::Error::START_TAG_SYNTAX_ERROR :					return "Syntax Error in Start Tag";
-		case 	adexml::Error::ATTRIBUTE_SYNTAX_ERROR :					return "Syntax Error in Attrbite";
-		case 	adexml::Error::ATTRIBUTE_VALUE_ILLERGAL_CHAR :	return "Illegal character in attribute value";
-		case 	adexml::Error::ATTRIBUTE_DUPLICATE_NAME :				return "Duplicate Attribute Name";
-		case 	adexml::Error::ELEMENT_TAG_MISMATCH :						return "Element Tag Mismatch";
-	}
-	return "(Unknown Error!)";
-}
-
-const AdeXMLErrorCategory sg_adexml_error_category;
-
-} // namespace
-
-namespace adexml
-{
-	std::error_code make_error_code(adexml::Error e)
-	{
-		return {static_cast<int>(e), sg_adexml_error_category};
-	}
-} // namespace adexml
-
 
 //=============================================================================
 //
@@ -95,6 +49,19 @@ Parser::write(std::span<char8_t> data)
 	}
 
 	return ec;
+}
+
+void
+Parser::set_state(State state)
+{
+	switch(state)
+	{
+		case STATE_IDLE : 										[[fallthrough]];
+		case STATE_ATTRIBUTE_VALUE_STRING :		m_entity_parser.reset(); break;
+		default: break;
+	}
+
+	m_state = state;
 }
 
 //-----------------------------------------------------------------------------
@@ -130,7 +97,8 @@ Parser::do_state_idle(char32_t ch)
 
 		default :
 			if(!m_element_stack.empty())
-				adexml::unicode::u32_to_u8(ch,m_element_stack.back().content);
+				return m_entity_parser.parse(ch, [&](char32_t decoded_ch)
+					{adexml::unicode::u32_to_u8(decoded_ch,m_element_stack.back().content);});
 			break;
 	}
 	return {};
@@ -480,14 +448,15 @@ Parser::do_state_attribute_value(char32_t ch)
 		m_attr_value.clear();
 		set_state(State::STATE_START_TAG_BODY);
 	}
-	else if((ch == adexml::LESS_THAN_SIGN) || (ch == adexml::AMPERSAND))
-	{
-		set_state(State::STATE_ERROR);
-		return adexml::Error::ATTRIBUTE_VALUE_ILLERGAL_CHAR;
-	}
+	// else if((ch == adexml::LESS_THAN_SIGN) || (ch == adexml::AMPERSAND))
+	// {
+	// 	set_state(State::STATE_ERROR);
+	// 	return adexml::Error::ATTRIBUTE_VALUE_ILLERGAL_CHAR;
+	// }
 	else
 	{
-		adexml::unicode::u32_to_u8(ch,m_attr_value);
+		return m_entity_parser.parse(ch, [&](char32_t decoded_ch)
+			{adexml::unicode::u32_to_u8(decoded_ch,m_attr_value);});
 	}
 	return {};
 }

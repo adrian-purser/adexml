@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.29)
 project(adexml VERSION 1.0.0)
 
 set(SOURCES
+	adexml/entity.h
+	adexml/errors.h
+	adexml/errors.cpp
   adexml/xml_parser.h
 	adexml/xml_parser.cpp
 )
