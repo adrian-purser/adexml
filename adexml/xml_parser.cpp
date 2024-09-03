@@ -608,7 +608,8 @@ Parser::on_end_end_tag()
 //	std::cout << "'\n";
 
 	if(m_callback)
-		m_callback(ACTION_END_ELEMENT, m_stack_path, m_element_stack);
+		if(auto ec = m_callback(ACTION_END_ELEMENT, m_stack_path, m_element_stack))
+			return ec;
 
 	//---------------------------------------------------------------------------
 	//	Remove the element from the element stack.
