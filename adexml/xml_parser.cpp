@@ -639,6 +639,7 @@ Parser::on_pi_tag()
 	element.name_space	= m_tag_namespace;
 	element.name 				= m_tag_name;
 
+/*	
 	std::cout << "PI: ";
 	for(auto ch : element.name)	std::cout.put(ch);
 	std::cout.put('\n');
@@ -651,7 +652,7 @@ Parser::on_pi_tag()
 		for(auto ch : value)		std::cout.put(ch);
 		std::cout << "\"\n";
 	}
-
+*/
 	//---------------------------------------------------------------------------
 	//	Remove the element from the element stack.
 	//---------------------------------------------------------------------------
